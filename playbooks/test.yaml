@@ -1,0 +1,177 @@
+# PLANTILLA DE PLAYBOOK
+  
+  # Para ejecutar nuestro playbook:
+  #  > ansible-playbook -i <fichero_inventario> <fichero_playbook>
+  
+  # Contra qué máquinas/entornos vamos a trabajar
+- hosts: localhost
+  #gather_facts: false
+  # Decidir el usuario con el que conectarnos a un entorno
+  remote_user: root
+  # Decidir el orden de los entornos en el que se van a ir ejecutando las tareas
+  order: inventory 
+         # inventory | reverse_inventory | sorted | reverse_sorted | suffle
+  
+    # También podré configurar sobre cuántos entornos quiero operar simultaneamente.
+    # Esta info no viene en este fichero
+  # Variables que luego utilizar en las tareas
+  vars:
+    puerto: 8080
+    configuracion:
+      nginx:
+        puerto: 80
+        ssl: false
+      apache:
+        puerto: 
+          - 443
+          - 9443
+        ssl: true   
+  # Listado de todas las tareas que queriamos realizar en los entornos 
+  tasks:
+    - name: 1- Inicialización
+      debug: 
+        msg: Inicialización de nuestro playbook
+        
+    - name: 2- Mostrar valor de la variable
+      debug: 
+        msg: "Mi variable puerto tiene el valor asignado: {{ puerto }}"
+        
+    - name: 3- Generar doble llave
+      debug: 
+        msg: !unsafe "Mi variable puerto tiene el valor asignado: {{ puerto }}"
+        
+    - name: 4- Mostrar valor variables jerárquicas
+      debug: 
+        msg: "Mi variable puerto tiene el valor asignado: {{ configuracion.apache.puerto }}"
+        
+    - name: 5- Redefinir el valr de una variable
+      debug: 
+        msg: "Mi variable puerto tiene el valor asignado: {{ puerto }}"
+      vars:
+        puerto: 9999
+
+    - name: 6- Mostrar valor de la variable lista
+      debug: 
+        msg: "El segundo puerto del apache es: {{ configuracion.apache.puerto[1] }}"
+        
+    - name: 7- Mostrar los facts de la máquina
+      debug: 
+        msg: >
+          "Sistem operativo: {{ ansible_facts.distribution }}"
+          "Version: {{ ansible_facts.distribution_version }}"
+        
+    - name: 7.1- Mostrar los facts de la máquina
+      debug: 
+        msg: |
+          "Sistem operativo: {{ ansible_facts.distribution }}"
+          "Version: {{ ansible_facts.distribution_version }}"
+          
+    ## CONDICIOANLES
+    - name: 8- Tarea que se ejecuta solamente en máquinas Ubuntu
+      debug: 
+        msg: >
+          "Sí es Ubuntu: {{ ansible_facts.distribution }}"
+      when: ansible_facts.distribution == 'Ubuntu'
+        
+    - name: 9- Tarea que se ejecuta solamente en máquinas Red Hat
+      debug: 
+        msg: >
+          "Sí es Red Hat: {{ ansible_facts.distribution }}"
+      when: ansible_facts.distribution == 'Redhat'
+      
+    - name: 10- Tarea que se ejecuta solamente cuando version es 18
+      debug: 
+        msg: >
+          "Version es mayor que 16: {{ ansible_facts.distribution_major_version }}"
+      when: ansible_facts.distribution_major_version > '16'
+      
+    - name: 10.1- Tarea que se ejecuta solamente cuando version es 18
+      debug: 
+        msg: >
+          "Version es mayor que 16 y el SO es Ubuntu"
+      #when: ansible_facts.distribution_major_version > '16' and ansible_facts.distribution == 'Ubuntu'
+      when:
+        - ansible_facts.distribution_major_version > '16'
+        - ansible_facts.distribution == 'Ubuntu'
+        
+    ## EVENTOS
+    - name: 11- Tarea que dispara eventos
+      debug: 
+        msg: "Lanzo un evento"
+      notify: Formatear Disco
+      
+    - name: 12- Tarea que dispara evento True
+      debug: 
+        msg: "Lanzo un evento"
+      notify: Formatear Disco
+      changed_when: True
+      
+    - name: 13- Tarea que dispara evento usanto nombre de evento
+      debug: 
+        msg: "Lanzo un evento"
+      notify: FORMATEAR
+      changed_when: True
+      
+## CONTROL DEL ESTADO DE EJECUCIÓN DE TAREAS
+    - name: 14- Crear o añade un fichero con un contenido
+      shell: 
+        cmd: echo CONTENIDO > /home/ubuntu/FICHERO.txt
+      register: resultado_proceso
+      failed_when: resultado_proceso.rc > 10
+      
+    - name: 15- Mostrar información del proceso registrado
+      debug:
+        msg: "{{ resultado_proceso }}"
+        
+    - name: 16- Comprobar puerto 22
+      shell:
+        cmd: netstat -lnt | grep :22
+      changed_when: False
+      failed_when: "'LISTEN' in resultado_proceso.stdout"
+      
+    - name: 17- La tarea 16 falló
+      shell:
+        cmd: netstat -lnt | grep :22
+      changed_when: False
+      failed_when: "'LISTEN' in resultado_proceso.stdout"
+      
+### LO QUE SEA
+    - name: 18- Listado de IPs que tiene mi máquina
+      debug:
+        msg: "IPs info: {{ item }}"
+        #msg: >
+        #  "Sí es Ubuntu: {{ ansible_facts.processor }}"
+      loop: "{{ ansible_facts.all_ipv4_addresses }}"
+      
+    - name: 19- Listado de CPUs (processor) que tiene mi máquina
+      debug:
+        msg: "CPU info: {{ item }}"
+        #msg: >
+        #  "Sí es Ubuntu: {{ ansible_facts.processor }}"
+      loop: "{{ ansible_facts.processor }}"
+  # Listado de tareas que se ejecuran bajo ciertos condiciones (cuando ocurren unos eventos)
+  
+  ## TRABAJO CON BLOQUES
+    - name: Tarea en bloque
+      block:
+        - name: Tarea 1 en bloque
+          debug:
+            msg: "Tarea 1 del bloque"
+          
+        - name: Tarea 2 en bloque
+          debug: 
+            msg: "Tarea 2 del bloque"
+      when: ansible_facts.distribution == 'Ubuntu'
+      ignore_errors: True
+              
+
+  handlers:
+    - name: Formatear Disco
+      debug:
+        msg: "Estoy formateando disco"
+        
+    - name: Post-Formatear Disco
+      debug:
+        msg: "Estoy haciendo cosas después de formatear disco"
+      #escucha evento
+      listen: FORMATEAR

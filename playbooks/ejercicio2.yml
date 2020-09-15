@@ -1,0 +1,64 @@
+---
+- hosts: test
+  gather_facts: True
+  remote_user: root
+  vars:
+    nginx_port: 80
+    mensaje_nginx: "Welcome to nginx"
+  tasks:
+  #  - name: Update cache
+  #    apt:
+  #      update_cache: yes
+     
+    - name: Install packages
+      package:
+        name: "{{ item }}"
+      with_items:
+        - nginx
+        - git
+        - curl
+        - ufw
+       
+    - name: Make sure a service is running
+      service:
+        state: started
+        name: nginx
+  
+ #   - name: Make sure a UFW service is running
+ #     ufw:
+ #       state: enabled
+ #       policy: deny
+        
+    - name: Allow all access to tcp port 80
+      ufw:
+       rule: allow
+       port: "{{ nginx_port }}"
+       proto: tcp
+
+  #  - name: Comprobar que el puerto 80 está ejecutando
+  #    shell: 
+  #      cmd: netstat -lnt | grep :80
+  #    register: resultado_puerto 
+  #    failed_when: "'LISTEN' not in resultado_puerto.stdout"
+      
+    - name: Waits for port 80 of any IP to close active connections
+      wait_for:
+        host: "{{ ansible_hostname }}"
+        port: "{{ nginx_port }}"
+        delay: 2
+        state: started
+        timeout: 10
+        connect_timeout: 2
+      
+    - name: GET request to Nginx
+      uri:
+       url: "http://{{ ansible_hostname }}:{{ nginx_port }}"
+      register: result
+      
+    - name: Check Nginx response
+      debug:
+        msg: |
+          "Nginx está corriendo bien"
+      failed_when: 
+        - result.status != 200
+        - "{{ mensaje_nginx }} not in result.stdout"

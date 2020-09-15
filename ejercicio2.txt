@@ -1,0 +1,17 @@
+# Maquina 1 -> Ubuntu
+# Actualizar repositiors de software
+# Instalacion de nginx
+# Instalacion de curl
+# Instalacion de git
+
+# Configurar NGINX
+# GENERAR un fichero de configuración <- CONMIGO
+# CARGAR UNA WEB DE UN GIT <- CONMIGO
+
+# Arrancar el """servicio""" de nginx
+# INICIAR EL NGINX
+
+# Comprobación
+# Revisar el puerto: 80
+# Comprobación de que el servidor devuelve contenido: COHERENTE!!!!
+
