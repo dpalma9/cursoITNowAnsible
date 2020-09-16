@@ -1,0 +1,4 @@
+nginx_port: 8080
+#mensaje_nginx: "Soy el fichero de la web"
+#nginx_web_path: /web
+#nginx_server_name: 172.17.0.2

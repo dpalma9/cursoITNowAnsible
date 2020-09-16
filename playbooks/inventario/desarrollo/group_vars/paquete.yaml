@@ -1,0 +1,5 @@
+paquetes:
+  - nginx
+  - git
+  - curl
+  - ufw

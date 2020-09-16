@@ -1,0 +1,22 @@
+---
+- name: Waits for port 80 of any IP to close active connections
+  wait_for:
+    host: "{{ ansible_host }}"
+    port: "{{ nginx_port }}"
+    delay: 2
+    state: started
+    timeout: 10
+    connect_timeout: 2
+  
+- name: GET request to Nginx
+  uri:
+   url: "http://{{ nginx_server_name }}:{{ nginx_port }}"
+  register: result
+  
+- name: Check Nginx response
+  debug:
+    msg: |
+      "Nginx está corriendo bien"
+  failed_when: 
+    - result.status != 200
+    - "{{ mensaje_nginx }} not in result.stdout"

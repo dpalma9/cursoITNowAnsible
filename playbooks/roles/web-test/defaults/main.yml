@@ -1,0 +1,4 @@
+---
+# defaults file for web-test
+nginx_port: 80
+mensaje_nginx: "Soy el fichero de la web"

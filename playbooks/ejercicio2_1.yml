@@ -1,12 +1,7 @@
 ---
-- hosts: test
+- hosts: all
   gather_facts: True
   remote_user: root
-  vars:
-    nginx_port: 80
-    mensaje_nginx: "Soy el fichero de la web"
-    nginx_web_path: /web
-    nginx_server_name: 172.17.0.2
   tasks:
   #  - name: Update cache
   #    apt:

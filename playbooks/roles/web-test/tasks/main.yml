@@ -1,0 +1,3 @@
+---
+# tasks file for web-test
+- import_tasks: test_web.yml
