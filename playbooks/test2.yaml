@@ -1,0 +1,41 @@
+# PLANTILLA DE PLAYBOOK
+  
+  # Para ejecutar nuestro playbook:
+  #  > ansible-playbook -i <fichero_inventario> <fichero_playbook>
+  
+  # Contra qué máquinas/entornos vamos a trabajar
+- hosts: localhost
+  # Para desactivar Gathering Facts, lo pondriamos a 'False'
+  gather_facts: False
+
+  # Decidir el usuario con el que conectarnos a un entorno
+  remote_user: root
+
+  tasks:
+    - debug:
+        msg: Esta es la primera tarea
+      notify: Handler tarea 1
+      
+    - debug:
+        msg: Esta es la segunda tarea
+      notify: Handler tarea 2
+      
+    - meta: flush_handlers
+    
+    - debug:
+        msg: Esta es la tarea tarea
+      notify: Handler tarea 3
+
+
+  handlers:
+    - name: Handler tarea 1
+      debug: 
+        msg: Soy el handler de la tarea 1
+
+    - name: Handler tarea 2
+      debug: 
+        msg: Soy el handler de la tarea 2
+        
+    - name: Handler tarea 3
+      debug: 
+        msg: Soy el handler de la tarea 3

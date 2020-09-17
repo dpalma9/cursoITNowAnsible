@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mihostname=$(hostname)
+
+echo "\""Mi máquina se llama: $mihostname""\"

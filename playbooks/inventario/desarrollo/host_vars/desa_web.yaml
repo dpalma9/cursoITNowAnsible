@@ -1,5 +1,25 @@
+## Variables de Nginx 
 ansible_host: 172.17.0.2
 nginx_port: 80
 mensaje_nginx: "Soy el fichero de la web"
 nginx_web_path: /web
 nginx_server_name: 172.17.0.2
+
+## Variables de base de datos
+base_datos_info:
+-  nombre_conexion: connection1
+   max_active: 50
+   max_idle: 10
+   max_wait: 60000
+   username: dani
+   password: 1234
+   driver_class_name: com.mysql.jdbc.Driver
+   url: jdbc:mysql://localhost:3306/javatest
+-  nombre_conexion: connection2
+   max_active: 50
+   max_idle: 10
+   max_wait: 60000
+   username: palma
+   password: 5678
+   driver_class_name: com.mysql.jdbc.Driver
+   url: jdbc:mysql://localhost:3307/javatest

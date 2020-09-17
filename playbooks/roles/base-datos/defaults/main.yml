@@ -1,0 +1,12 @@
+---
+# defaults file for base-datos
+base_datos_ruta: /tmp/example
+base_datos_info:
+    -  nombre_conexion: enNombreCualquiera
+       max_active: 50
+       max_idle: 10
+       max_wait: 60000
+       username: user
+       password: pass
+       driver_class_name: com.mysql.jdbc.Driver
+       url: jdbc:mysql://localhost:3306/javatest

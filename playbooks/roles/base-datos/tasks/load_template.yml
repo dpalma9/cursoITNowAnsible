@@ -1,0 +1,11 @@
+---
+- name: Crear directorio
+  file: 
+    path: "{{ base_datos_ruta }}"
+    state: directory
+    
+- name: Cargar template
+  template:
+    src: ./templates/plantilla.xml
+    dest: "{{ base_datos_ruta }}/server.xml"
+    mode: '644'
