@@ -1,0 +1,49 @@
+---
+- hosts: all
+  gather_facts: False
+  #remote_user: root
+  become: yes
+  vars:
+    - paquetes:
+        - ansible
+        - docker
+        - docker-compose
+    - paquetes_python:
+        - docker
+        - docker-compose
+  tasks:
+    - name: Update cache
+      apt:
+        update_cache: yes
+     
+    - name: Install packages
+      package:
+        name: "{{ item }}"
+      loop: "{{ paquetes }}"
+      
+    - name: Crear tarjeta de datos
+      file:
+        path: "{{ jenkins_volume_path }}"
+        state: directory
+        mode: '777'
+      
+    - name: Crear tarjeta de trabajo
+      file:
+        path: "{{ jenkins_path }}"
+        state: directory
+        mode: '777'
+        
+    - pip:
+        name: "{{ item }}"
+        executable: pip3
+      loop: "{{ paquetes_python }}"  
+  
+    - name: Generar docker-compose template
+      template:
+        src: template.yml
+        dest: "{{ jenkins_path }}/docker-compose.yaml"
+        #mode:
+        
+    - name: Run `docker-compose up` again
+      docker_compose:
+        project_src: "{{ jenkins_path }}"
